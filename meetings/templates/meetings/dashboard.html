@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Nexora Meet{% endblock %}
+{% block content %}
+<div class="page-container">
+
+  <!-- Hero bar -->
+  <div class="dashboard-hero">
+    <div>
+      <h1 class="page-title">Good to see you, {{ user.first_name|default:user.username }} 👋</h1>
+      <p class="page-sub">Ready to connect? Start or join a meeting.</p>
+    </div>
+    <div class="hero-actions">
+      <a href="{% url 'create_meeting' %}" class="btn-hero-primary">
+        <i class="bi bi-plus-lg"></i> New Meeting
+      </a>
+    </div>
+  </div>
+
+  <!-- Quick Join -->
+  <div class="quick-join-bar">
+    <div class="quick-join-label">
+      <i class="bi bi-link-45deg"></i>
+      Quick Join
+    </div>
+    <form method="post" action="{% url 'join_meeting' %}" class="quick-join-form">
+      {% csrf_token %}
+      {{ join_form.meeting_id }}
+      <button type="submit" class="btn-join-sm">
+        <i class="bi bi-arrow-right"></i> Join
+      </button>
+    </form>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-card-icon"><i class="bi bi-camera-video"></i></div>
+      <div>
+        <div class="stat-card-num">{{ hosted.count }}</div>
+        <div class="stat-card-label">Meetings Created</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent-green"><i class="bi bi-people"></i></div>
+      <div>
+        <div class="stat-card-num">{{ joined.count }}</div>
+        <div class="stat-card-label">Meetings Joined</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent-orange"><i class="bi bi-activity"></i></div>
+      <div>
+        <div class="stat-card-num">{{ hosted.filter.count|default:"–" }}</div>
+        <div class="stat-card-label">Active Sessions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Meetings -->
+  <div class="section-block">
+    <div class="section-header">
+      <h3 class="section-title">My Meetings</h3>
+      <a href="{% url 'create_meeting' %}" class="section-action">
+        <i class="bi bi-plus"></i> Create
+      </a>
+    </div>
+
+    {% if hosted %}
+      <div class="meetings-grid">
+        {% for m in hosted %}
+        <div class="meeting-card {% if not m.is_active %}meeting-ended{% endif %}">
+          <div class="meeting-card-top">
+            <div class="meeting-badge {% if m.is_active %}badge-active{% else %}badge-ended{% endif %}">
+              {% if m.is_active %}Live{% else %}Ended{% endif %}
+            </div>
+            <div class="meeting-actions-top">
+              <button class="icon-btn copy-btn" data-id="{{ m.meeting_id }}" title="Copy ID">
+                <i class="bi bi-copy"></i>
+              </button>
+              {% if m.is_active %}
+              <a href="{% url 'end_meeting' m.meeting_id %}" class="icon-btn danger-btn" title="End meeting"
+                 onclick="return confirm('End this meeting?')">
+                <i class="bi bi-stop-circle"></i>
+              </a>
+              {% endif %}
+              <a href="{% url 'delete_meeting' m.meeting_id %}" class="icon-btn danger-btn" title="Delete"
+                 onclick="return confirm('Delete permanently?')">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          </div>
+
+          <h4 class="meeting-title">{{ m.title }}</h4>
+          {% if m.description %}
+            <p class="meeting-desc">{{ m.description|truncatechars:60 }}</p>
+          {% endif %}
+
+          <div class="meeting-meta">
+            <span><i class="bi bi-hash"></i> {{ m.meeting_id }}</span>
+            {% if m.scheduled_at %}
+              <span><i class="bi bi-calendar"></i> {{ m.scheduled_at|date:"M d, H:i" }}</span>
+            {% else %}
+              <span><i class="bi bi-clock"></i> {{ m.created_at|timesince }} ago</span>
+            {% endif %}
+          </div>
+
+          {% if m.is_active %}
+          <a href="{% url 'room' m.meeting_id %}" class="btn-enter-meeting">
+            <i class="bi bi-camera-video-fill"></i> Enter Room
+          </a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-calendar-x"></i></div>
+        <p>No meetings yet. <a href="{% url 'create_meeting' %}">Create your first one →</a></p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Joined Meetings -->
+  {% if joined %}
+  <div class="section-block">
+    <div class="section-header">
+      <h3 class="section-title">Joined Meetings</h3>
+    </div>
+    <div class="meetings-grid">
+      {% for m in joined %}
+      <div class="meeting-card {% if not m.is_active %}meeting-ended{% endif %}">
+        <div class="meeting-card-top">
+          <div class="meeting-badge badge-joined">Joined</div>
+        </div>
+        <h4 class="meeting-title">{{ m.title }}</h4>
+        <div class="meeting-meta">
+          <span><i class="bi bi-person"></i> {{ m.host.get_full_name|default:m.host.username }}</span>
+          <span><i class="bi bi-hash"></i> {{ m.meeting_id }}</span>
+        </div>
+        {% if m.is_active %}
+        <a href="{% url 'room' m.meeting_id %}" class="btn-enter-meeting btn-enter-alt">
+          <i class="bi bi-arrow-right-circle-fill"></i> Re-join
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.id;
+    navigator.clipboard.writeText(id).then(() => {
+      btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+      setTimeout(() => btn.innerHTML = '<i class="bi bi-copy"></i>', 2000);
+    });
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Join Meeting — Nexora Meet{% endblock %}
+{% block content %}
+<div class="page-container page-narrow">
+  <div class="page-header">
+    <a href="{% url 'dashboard' %}" class="back-link"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    <h1 class="page-title">Join a Meeting</h1>
+    <p class="page-sub">Enter the meeting ID shared with you.</p>
+  </div>
+
+  <div class="form-card">
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      <div class="field-group">
+        <label class="field-label">Meeting ID</label>
+        <div class="input-icon-wrap">
+          <i class="bi bi-hash input-icon"></i>
+          {{ form.meeting_id }}
+        </div>
+        {% if form.meeting_id.errors %}
+          <span class="field-error">{{ form.meeting_id.errors.0 }}</span>
+        {% endif %}
+        <span class="field-hint">Format: XXX-XXXX-XXX</span>
+      </div>
+
+      <button type="submit" class="btn-primary-full btn-lg-action">
+        <i class="bi bi-arrow-right-circle-fill"></i> Enter Room
+      </button>
+    </form>
+
+    <div class="divider-text">or</div>
+
+    <a href="{% url 'create_meeting' %}" class="btn-outline-full">
+      <i class="bi bi-plus-circle"></i> Create a New Meeting
+    </a>
+  </div>
+</div>
+{% endblock %}

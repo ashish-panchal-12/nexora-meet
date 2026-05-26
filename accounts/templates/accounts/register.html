@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Create Account — Nexora Meet{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="auth-card auth-card-wide">
+    <div class="auth-logo">
+      <div class="brand-icon-lg"><i class="bi bi-camera-video-fill"></i></div>
+      <h1 class="auth-brand">Nexora Meet</h1>
+    </div>
+    <h2 class="auth-title">Create your account</h2>
+    <p class="auth-sub">Free forever. No credit card required.</p>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-6">
+          <div class="field-group">
+            <label class="field-label">First Name</label>
+            <div class="input-icon-wrap">
+              <i class="bi bi-person input-icon"></i>
+              {{ form.first_name }}
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field-group">
+            <label class="field-label">Last Name</label>
+            {{ form.last_name }}
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Username</label>
+        <div class="input-icon-wrap">
+          <i class="bi bi-at input-icon"></i>
+          {{ form.username }}
+        </div>
+        {% if form.username.errors %}
+          <span class="field-error">{{ form.username.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Email</label>
+        <div class="input-icon-wrap">
+          <i class="bi bi-envelope input-icon"></i>
+          {{ form.email }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <div class="input-icon-wrap">
+          <i class="bi bi-lock input-icon"></i>
+          {{ form.password1 }}
+          <button type="button" class="eye-btn" onclick="togglePwd(this)">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+        {% if form.password1.errors %}
+          <span class="field-error">{{ form.password1.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Confirm Password</label>
+        <div class="input-icon-wrap">
+          <i class="bi bi-lock-fill input-icon"></i>
+          {{ form.password2 }}
+        </div>
+        {% if form.password2.errors %}
+          <span class="field-error">{{ form.password2.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn-primary-full">
+        <i class="bi bi-rocket-takeoff"></i> Create Account
+      </button>
+    </form>
+    <p class="auth-switch">
+      Already have an account? <a href="{% url 'login' %}">Sign in →</a>
+    </p>
+  </div>
+</div>
+<script>
+function togglePwd(btn) {
+  const input = btn.closest('.input-icon-wrap').querySelector('input');
+  const icon  = btn.querySelector('i');
+  input.type  = input.type === 'password' ? 'text' : 'password';
+  icon.className = input.type === 'text' ? 'bi bi-eye-slash' : 'bi bi-eye';
+}
+</script>
+{% endblock %}

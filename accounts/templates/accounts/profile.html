@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Profile — Nexora Meet{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Your Profile</h1>
+    <p class="page-sub">Manage your account details</p>
+  </div>
+
+  <div class="profile-grid">
+    <!-- Left: Avatar + Stats -->
+    <div class="profile-sidebar">
+      <div class="profile-avatar-lg">
+        {% if profile.avatar %}
+          <img src="{{ profile.avatar.url }}" alt="Avatar" />
+        {% else %}
+          <span>{{ user.username|first|upper }}</span>
+        {% endif %}
+      </div>
+      <h3 class="profile-name">{{ user.get_full_name|default:user.username }}</h3>
+      <p class="profile-username">@{{ user.username }}</p>
+
+      <div class="profile-stats">
+        <div class="stat-item">
+          <div class="stat-num">{{ hosted_count }}</div>
+          <div class="stat-label">Meetings Hosted</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">{{ user.joined_meetings.count }}</div>
+          <div class="stat-label">Meetings Joined</div>
+        </div>
+      </div>
+
+      <p class="profile-bio">{{ profile.bio|default:"No bio yet." }}</p>
+    </div>
+
+    <!-- Right: Edit Form -->
+    <div class="profile-form-card">
+      <h4 class="form-card-title">Edit Details</h4>
+      <form method="post" enctype="multipart/form-data" class="auth-form">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="field-group">
+              <label class="field-label">First Name</label>
+              {{ form.first_name }}
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="field-group">
+              <label class="field-label">Last Name</label>
+              {{ form.last_name }}
+            </div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email</label>
+          {{ form.email }}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Bio</label>
+          {{ form.bio }}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Profile Picture</label>
+          {{ form.avatar }}
+        </div>
+        <button type="submit" class="btn-primary-full">
+          <i class="bi bi-check2-circle"></i> Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
