@@ -4,17 +4,6 @@ from .models import Meeting
 
 class MeetingForm(forms.ModelForm):
 
-    password = forms.CharField(
-        required=False,
-        widget=forms.PasswordInput(
-            attrs={
-                'class':'form-control custom-input',
-                'placeholder':
-                'Optional meeting password'
-            }
-        )
-    )
-
     class Meta:
         model = Meeting
 
@@ -29,33 +18,30 @@ class MeetingForm(forms.ModelForm):
 
             'title': forms.TextInput(
                 attrs={
-                    'class':
-                    'form-control custom-input',
-
-                    'placeholder':
-                    'e.g. Team Standup'
+                    'class':'form-control custom-input',
+                    'placeholder':'e.g. Team Standup'
                 }
             ),
 
-            'description':
-            forms.Textarea(
+            'description': forms.Textarea(
                 attrs={
-                    'class':
-                    'form-control custom-input',
+                    'class':'form-control custom-input',
                     'rows':3,
-
-                    'placeholder':
-                    'Brief description'
+                    'placeholder':'Brief description'
                 }
             ),
 
-            'scheduled_at':
-            forms.DateTimeInput(
+            'scheduled_at': forms.DateTimeInput(
                 attrs={
-                    'class':
-                    'form-control custom-input',
-                    'type':
-                    'datetime-local'
+                    'class':'form-control custom-input',
+                    'type':'datetime-local'
+                }
+            ),
+
+            'password': forms.PasswordInput(
+                attrs={
+                    'class':'form-control custom-input',
+                    'placeholder':'Optional meeting password'
                 }
             )
         }
@@ -63,20 +49,22 @@ class MeetingForm(forms.ModelForm):
 
 class JoinMeetingForm(forms.Form):
 
-    meeting_id = forms.CharField(
+    meeting_id=forms.CharField(
         max_length=20,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control custom-input join-input',
-            'placeholder': 'XXX-XXXX-XXX',
-            'autocomplete': 'off',
-        })
+        widget=forms.TextInput(
+            attrs={
+                'class':'form-control custom-input join-input',
+                'placeholder':'XXX-XXXX-XXX'
+            }
+        )
     )
 
-    password = forms.CharField(
+    password=forms.CharField(
         required=False,
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control custom-input',
-            'placeholder': 'Meeting password (optional)',
-            'autocomplete': 'off',
-        })
+        widget=forms.PasswordInput(
+            attrs={
+                'class':'form-control custom-input',
+                'placeholder':'Meeting password'
+            }
+        )
     )
