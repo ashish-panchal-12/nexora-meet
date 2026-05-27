@@ -20,17 +20,48 @@ def dashboard(request):
 
 @login_required
 def create_meeting(request):
+
     if request.method == 'POST':
+
         form = MeetingForm(request.POST)
+
         if form.is_valid():
-            meeting      = form.save(commit=False)
+
+            meeting = form.save(
+                commit=False
+            )
+
             meeting.host = request.user
+
+            meeting.password = (
+                form.cleaned_data.get(
+                    'password'
+                )
+            )
+
             meeting.save()
-            messages.success(request, f'Meeting "{meeting.title}" created!')
-            return redirect('room', meeting_id=meeting.meeting_id)
+
+            messages.success(
+                request,
+                'Meeting created!'
+            )
+
+            return redirect(
+                'room',
+                meeting_id=
+                meeting.meeting_id
+            )
+
     else:
         form = MeetingForm()
-    return render(request, 'meetings/create_meeting.html', {'form': form})
+
+    return render(
+        request,
+        'meetings/create_meeting.html',
+        {'form': form}
+    )
+    
+    
 
 
 @login_required
