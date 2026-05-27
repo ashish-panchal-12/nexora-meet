@@ -82,23 +82,17 @@
 
 
 
-<script src="https://meet.jit.si/external_api.js"></script>
+<script src="https://8x8.vc/external_api.js"></script>
 
 <script>
-window.onload = function(){
-
-const roomId =
-"room"+
-Math.random()
-.toString(36)
-.substring(2,8)+
-"{{meeting.meeting_id}}";
+window.onload=function(){
 
 const api =
 new JitsiMeetExternalAPI(
-"meet.jit.si",
+"8x8.vc",
 {
-roomName: roomId,
+roomName:
+"vpaas-magic-cookie-65eeae3b11f64ed5bf97ee3c2a548de7/Nexora_{{meeting.meeting_id}}",
 
 parentNode:
 document.querySelector(
@@ -114,46 +108,18 @@ displayName:
 },
 
 configOverwrite:{
-
 prejoinPageEnabled:false,
-
-startSilent:false,
-
 startWithAudioMuted:false,
-
-startWithVideoMuted:false,
-
-disableDeepLinking:true,
-
-enableWelcomePage:false,
-
-lobbyMode:false,
-
-enableLobbyChat:false,
-
-hideLobbyButton:true,
-
-requireDisplayName:false,
-
-disableModeratorIndicator:true,
-
-startScreenSharing:false
+startWithVideoMuted:false
 },
 
 interfaceConfigOverwrite:{
-
-SHOW_JITSI_WATERMARK:false,
-
-MOBILE_APP_PROMO:false,
-
-DISABLE_JOIN_LEAVE_NOTIFICATIONS:true
+SHOW_JITSI_WATERMARK:false
 }
 }
 );
 
-console.log(
-"JITSI SUCCESS"
-);
+console.log("JAAS LOADED");
 
 };
 </script>
