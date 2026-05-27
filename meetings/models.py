@@ -36,3 +36,9 @@ class Meeting(models.Model):
 
     def participant_count(self):
         return self.participants.count()
+    
+    password = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True
+    )

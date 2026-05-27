@@ -1,9 +1,10 @@
-{% extends 'base.html' %}
-{% block title %}Join Meeting — Nexora Meet{% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% block title %}Join Meeting — Nexora Meet{% endblock
+%} {% block content %}
 <div class="page-container page-narrow">
   <div class="page-header">
-    <a href="{% url 'dashboard' %}" class="back-link"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    <a href="{% url 'dashboard' %}" class="back-link"
+      ><i class="bi bi-arrow-left"></i> Dashboard</a
+    >
     <h1 class="page-title">Join a Meeting</h1>
     <p class="page-sub">Enter the meeting ID shared with you.</p>
   </div>
@@ -18,9 +19,27 @@
           {{ form.meeting_id }}
         </div>
         {% if form.meeting_id.errors %}
-          <span class="field-error">{{ form.meeting_id.errors.0 }}</span>
+        <span class="field-error">{{ form.meeting_id.errors.0 }}</span>
         {% endif %}
         <span class="field-hint">Format: XXX-XXXX-XXX</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label"> Meeting Password </label>
+
+        <div class="input-icon-wrap">
+          <i class="bi bi-lock input-icon"></i>
+
+          {{ form.password }}
+        </div>
+
+        {% if form.password.errors %}
+
+        <span class="field-error"> {{ form.password.errors.0 }} </span>
+
+        {% endif %}
+
+        <span class="field-hint"> Leave empty if meeting has no password </span>
       </div>
 
       <button type="submit" class="btn-primary-full btn-lg-action">
