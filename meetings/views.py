@@ -64,62 +64,81 @@ def create_meeting(request):
     
 
 
+
 @login_required
 def join_meeting(request):
 
-    if request.method=="POST":
+    if request.method == 'POST':
 
-        meeting_id=(
-        request.POST.get(
-        "meeting_id"
-        )
-        .strip()
-        .upper()
-        )
+        form = JoinMeetingForm(request.POST)
 
-        password = request.POST.get("password")
+        if form.is_valid():
 
-        try:
+            meeting_id = (
+                form.cleaned_data['meeting_id']
+                .strip()
+                .upper()
+            )
 
-            meeting = Meeting.objects.get(meeting_id=meeting_id, is_active=True)
+            password = (
+                form.cleaned_data['password']
+            )
 
-            if meeting.password:
+            try:
 
-                if password!=meeting.password:
+                meeting = Meeting.objects.get(
+                    meeting_id=meeting_id,
+                    is_active=True
+                )
 
-                    messages.error(
+                # PASSWORD CHECK
+                if meeting.password:
+
+                    if password != meeting.password:
+
+                        messages.error(
+                            request,
+                            "Incorrect password"
+                        )
+
+                        return redirect(
+                            'join_meeting'
+                        )
+
+                meeting.participants.add(
+                    request.user
+                )
+
+                return redirect(
+                    'room',
+                    meeting_id=meeting.meeting_id
+                )
+
+            except Meeting.DoesNotExist:
+
+                messages.error(
                     request,
-                    "Wrong password"
-                    )
+                    "Meeting not found"
+                )
 
-                    return redirect(
-                    "dashboard"
-                    )
+                return redirect(
+                    'join_meeting'
+                )
 
-            meeting.participants.add(
-            request.user
-            )
+    else:
 
-            return redirect(
-            'room',
-            meeting_id=
-            meeting.meeting_id
-            )
+        form = JoinMeetingForm()
 
-        except Meeting.DoesNotExist:
-
-            messages.error(
-            request,
-            'Meeting not found'
-            )
-
-    return redirect(
-    "dashboard"
+    return render(
+        request,
+        'meetings/join_meeting.html',
+        {
+            'form': form
+        }
     )
     
-
-
-@login_required
+    
+    
 def room(request, meeting_id):
     meeting = get_object_or_404(
         Meeting,
