@@ -35,7 +35,7 @@ Coming Soon
 - Redis
 
 ### Video Conferencing
-- Jitsi Meet API / JaaS
+- Jitsi Meet API 
 
 ### Frontend
 - HTML5
