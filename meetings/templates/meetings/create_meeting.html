@@ -1,11 +1,14 @@
-{% extends 'base.html' %}
-{% block title %}New Meeting — Nexora Meet{% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% block title %}New Meeting — Nexora Meet{% endblock
+%} {% block content %}
 <div class="page-container page-narrow">
   <div class="page-header">
-    <a href="{% url 'dashboard' %}" class="back-link"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    <a href="{% url 'dashboard' %}" class="back-link"
+      ><i class="bi bi-arrow-left"></i> Dashboard</a
+    >
     <h1 class="page-title">Create a Meeting</h1>
-    <p class="page-sub">Fill in details and start instantly or schedule for later.</p>
+    <p class="page-sub">
+      Fill in details and start instantly or schedule for later.
+    </p>
   </div>
 
   <div class="form-card">
@@ -13,27 +16,53 @@
       {% csrf_token %}
 
       <div class="field-group">
-        <label class="field-label">Meeting Title <span class="required">*</span></label>
+        <label class="field-label"
+          >Meeting Title <span class="required">*</span></label
+        >
         {{ form.title }}
       </div>
 
       <div class="field-group">
-        <label class="field-label">Description <span class="optional">(optional)</span></label>
+        <label class="field-label"
+          >Description <span class="optional">(optional)</span></label
+        >
         {{ form.description }}
       </div>
 
       <div class="field-group">
         <label class="field-label">
           <i class="bi bi-calendar-event"></i>
-          Schedule For <span class="optional">(optional — leave blank to start now)</span>
+          Schedule For
+          <span class="optional">(optional — leave blank to start now)</span>
         </label>
         {{ form.scheduled_at }}
       </div>
 
+      <div class="field-group">
+        <label class="field-label">
+          <i class="bi bi-lock"></i>
+          Meeting Password
+          <span class="optional">(optional)</span>
+        </label>
+
+        {{ form.password }} {% if form.password.errors %}
+        <span class="field-error"> {{ form.password.errors.0 }} </span>
+        {% endif %}
+
+        <span class="field-hint"> Add a password for private meetings </span>
+      </div>
+
       <div class="form-tips">
-        <div class="tip-item"><i class="bi bi-shield-check"></i> End-to-end encrypted video</div>
-        <div class="tip-item"><i class="bi bi-link-45deg"></i> Shareable meeting ID generated automatically</div>
-        <div class="tip-item"><i class="bi bi-chat-dots"></i> Live chat included</div>
+        <div class="tip-item">
+          <i class="bi bi-shield-check"></i> End-to-end encrypted video
+        </div>
+        <div class="tip-item">
+          <i class="bi bi-link-45deg"></i> Shareable meeting ID generated
+          automatically
+        </div>
+        <div class="tip-item">
+          <i class="bi bi-chat-dots"></i> Live chat included
+        </div>
       </div>
 
       <button type="submit" class="btn-primary-full btn-lg-action">
