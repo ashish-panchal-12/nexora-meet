@@ -50,15 +50,35 @@ def join_meeting(request):
     return render(request, 'meetings/join_meeting.html', {'form': form})
 
 
+from django.conf import settings
+
+
 @login_required
 def room(request, meeting_id):
-    meeting = get_object_or_404(Meeting, meeting_id=meeting_id)
+    meeting = get_object_or_404(
+        Meeting,
+        meeting_id=meeting_id
+    )
+
     if request.user != meeting.host:
-        meeting.participants.add(request.user)
-    return render(request, 'meetings/room.html', {
-        'meeting':  meeting,
-        'username': request.user.get_full_name() or request.user.username,
-    })
+        meeting.participants.add(
+            request.user
+        )
+
+    return render(
+        request,
+        'meetings/room.html',
+        {
+            'meeting': meeting,
+
+            'username':
+            request.user.get_full_name()
+            or request.user.username,
+
+            'JAAS_JWT_TOKEN':
+            settings.JAAS_JWT_TOKEN
+        }
+    )
 
 
 @login_required
