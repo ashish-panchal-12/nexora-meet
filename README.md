@@ -74,8 +74,3 @@ zoom_project/
 └── README.md
 
 └── README.md
-
-
-
-roomName:
-        "vpaas-magic-cookie-65eeae3b11f64ed5bf97ee3c2a548de7/Nexora_{{meeting.meeting_id}}",
