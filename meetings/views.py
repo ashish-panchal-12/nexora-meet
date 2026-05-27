@@ -50,8 +50,6 @@ def join_meeting(request):
     return render(request, 'meetings/join_meeting.html', {'form': form})
 
 
-from django.conf import settings
-
 
 @login_required
 def room(request, meeting_id):
@@ -73,10 +71,7 @@ def room(request, meeting_id):
 
             'username':
             request.user.get_full_name()
-            or request.user.username,
-
-            'JAAS_JWT_TOKEN':
-            settings.JAAS_JWT_TOKEN
+            or request.user.username
         }
     )
 
