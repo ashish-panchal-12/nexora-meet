@@ -28,6 +28,13 @@ class RegisterForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control custom-input'})
+            
+            
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError("This username is already registered. Please choose another username.")
+        return username
 
 
 class LoginForm(AuthenticationForm):

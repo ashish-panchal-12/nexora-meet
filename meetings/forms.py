@@ -3,26 +3,21 @@ from .models import Meeting
 
 
 class MeetingForm(forms.ModelForm):
-
     class Meta:
         model = Meeting
-
         fields = [
             'title',
             'description',
             'scheduled_at',
             'password'
         ]
-
         widgets = {
-
             'title': forms.TextInput(
                 attrs={
                     'class':'form-control custom-input',
                     'placeholder':'e.g. Team Standup'
                 }
             ),
-
             'description': forms.Textarea(
                 attrs={
                     'class':'form-control custom-input',
@@ -30,14 +25,12 @@ class MeetingForm(forms.ModelForm):
                     'placeholder':'Brief description'
                 }
             ),
-
             'scheduled_at': forms.DateTimeInput(
                 attrs={
                     'class':'form-control custom-input',
                     'type':'datetime-local'
                 }
             ),
-
             'password': forms.PasswordInput(
                 attrs={
                     'class':'form-control custom-input',
