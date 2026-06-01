@@ -27,13 +27,14 @@ def register_view(request):
                 'password': form.cleaned_data['password1'],
                 'mobile_number': form.cleaned_data.get('mobile_number', ''),
             }
-            send_mail(
-                'Nexora Meet Verification Code',
-                f'Your OTP is: {otp}',
-                settings.EMAIL_HOST_USER,
-                [form.cleaned_data['email']],
-                fail_silently=False,
-            )
+            # send_mail(
+            #     'Nexora Meet Verification Code',
+            #     f'Your OTP is: {otp}',
+            #     settings.EMAIL_HOST_USER,
+            #     [form.cleaned_data['email']],
+            #     fail_silently=False,
+            # )
+            print("OTP =", otp)
             return redirect('verify_otp')
     else:
         form = RegisterForm()
