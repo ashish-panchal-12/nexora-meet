@@ -124,7 +124,8 @@ EMAIL_PORT = 587
 
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'panchalab12@gmail.com'
-EMAIL_HOST_PASSWORD = 'eichzibnvpwolkkf'
+import os
+EMAIL_HOST_USER = os.getenv("panchalab12@gmail.com")
+EMAIL_HOST_PASSWORD = os.getenv("eichzibnvpwolkkf")
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
