@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 import random
 from django.core.mail import send_mail
 from .models import Profile
+from django.conf import settings
 
 
 def register_view(request):
@@ -29,7 +30,7 @@ def register_view(request):
             send_mail(
                 'Nexora Meet Verification Code',
                 f'Your OTP is: {otp}',
-                None,
+                settings.EMAIL_HOST_USER,
                 [form.cleaned_data['email']],
                 fail_silently=False,
             )
