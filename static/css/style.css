@@ -893,6 +893,29 @@ body {
 }
 .room-copy-btn:hover { border-color: var(--accent); color: var(--text-primary); }
 
+.room-whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 14px;
+
+    border-radius: 10px;
+
+    background: #25D366;
+    color: white;
+
+    text-decoration: none;
+    font-weight: 600;
+
+    transition: all .3s ease;
+}
+
+.room-whatsapp-btn:hover {
+    background: #1da851;
+    color: white;
+}
+
 .room-top-actions { display: flex; gap: 8px; }
 
 .room-end-btn {

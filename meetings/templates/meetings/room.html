@@ -17,6 +17,10 @@
       <button id="copyIdBtn" class="room-copy-btn" onclick="copyMeetingId()">
         <i class="bi bi-copy"></i> Copy ID
       </button>
+      <a href="https://wa.me/?text=Meeting ID: {{ meeting.meeting_id }}%0AJoin here: {{ request.scheme }}://{{ request.get_host }}{% url 'room' meeting.meeting_id %}" target="_blank" class="room-whatsapp-btn">
+        <i class="bi bi-whatsapp"></i>
+        WhatsApp
+      </a>
     </div>
     <div class="room-top-actions">
       {% if request.user == meeting.host %}
@@ -121,5 +125,33 @@
     console.log("JAAS LOADED");
   };
 </script>
+
+
+<script>
+function copyMeetingId() {
+    const meetingId = "{{ meeting.meeting_id }}";
+
+    navigator.clipboard.writeText(meetingId)
+    .then(() => {
+
+        const btn =
+        document.getElementById("copyIdBtn");
+
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> Copied';
+
+        setTimeout(() => {
+            btn.innerHTML =
+            '<i class="bi bi-copy"></i> Copy ID';
+        }, 2000);
+    })
+    .catch(error => {
+        console.error(error);
+        alert(
+            "Failed to copy Meeting ID"
+        );
+    });
+}
+</script>
+
 
 {% endblock %}

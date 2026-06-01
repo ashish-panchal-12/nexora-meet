@@ -4,6 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegisterForm, LoginForm, ProfileUpdateForm
 from .models import Profile
+from django.contrib.auth.models import User
+import random
+from django.core.mail import send_mail
+from .models import Profile
 
 
 def register_view(request):
@@ -12,35 +16,132 @@ def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            Profile.objects.create(user=user)
-            login(request, user)
-            messages.success(request, f'Welcome, {user.first_name}! Your account has been created.')
-            return redirect('dashboard')
-        else:
-            messages.error(request, 'Please correct the errors below.')
+            otp = random.randint(100000, 999999)
+            request.session['otp'] = str(otp)
+            request.session['user_data'] = {
+                'username': form.cleaned_data['username'],
+                'email': form.cleaned_data['email'],
+                'first_name': form.cleaned_data['first_name'],
+                'last_name': form.cleaned_data['last_name'],
+                'password': form.cleaned_data['password1'],
+                'mobile_number': form.cleaned_data.get('mobile_number', ''),
+            }
+            send_mail(
+                'Nexora Meet Verification Code',
+                f'Your OTP is: {otp}',
+                None,
+                [form.cleaned_data['email']],
+                fail_silently=False,
+            )
+            return redirect('verify_otp')
     else:
         form = RegisterForm()
-    return render(request, 'accounts/register.html', {'form': form})
+    return render(
+        request,
+        'accounts/register.html',
+        {'form': form}
+    )
 
 
+def verify_otp(request):
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+        saved_otp = request.session.get('otp')
+        if entered_otp == saved_otp:
+            data = request.session.get('user_data')
+            user = User.objects.create_user(
+                username=data['username'],
+                email=data['email'],
+                password=data['password'],
+                first_name=data['first_name'],
+                last_name=data['last_name']
+            )
+            Profile.objects.create(user=user, mobile_number=data.get('mobile_number'))
+            login(request, user)
+            del request.session['otp']
+            del request.session['user_data']
+            return redirect('dashboard')
+        else:
+            messages.error(
+                request,
+                'Invalid OTP'
+            )
+    return render(
+        request,
+        'accounts/verify_otp.html'
+    )
+    
+    
 def login_view(request):
+
     if request.user.is_authenticated:
         return redirect('dashboard')
-    if request.method == 'POST':
-        form = LoginForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            next_url = request.GET.get('next', 'dashboard')
-            messages.success(request, f'Welcome back, {user.first_name or user.username}!')
-            return redirect(next_url)
-        else:
-            messages.error(request, 'Invalid username or password.')
-    else:
-        form = LoginForm()
-    return render(request, 'accounts/login.html', {'form': form})
 
+    if request.method == 'POST':
+
+        login_input = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = None
+
+        # Login using Email
+        try:
+            user_obj = User.objects.get(email=login_input)
+            user = authenticate(
+                request,
+                username=user_obj.username,
+                password=password
+            )
+        except User.DoesNotExist:
+            pass
+
+        # Login using Mobile Number
+        if user is None:
+            try:
+                profile = Profile.objects.get(
+                    mobile_number=login_input
+                )
+
+                user = authenticate(
+                    request,
+                    username=profile.user.username,
+                    password=password
+                )
+
+            except Profile.DoesNotExist:
+                pass
+
+        # Login using Username
+        if user is None:
+            user = authenticate(
+                request,
+                username=login_input,
+                password=password
+            )
+
+        if user:
+            login(request, user)
+
+            messages.success(
+                request,
+                f'Welcome back, {user.first_name or user.username}!'
+            )
+
+            return redirect('dashboard')
+
+        messages.error(
+            request,
+            'Invalid credentials'
+        )
+
+    form = LoginForm()
+
+    return render(
+        request,
+        'accounts/login.html',
+        {'form': form}
+    )
+    
 
 @login_required
 def logout_view(request):

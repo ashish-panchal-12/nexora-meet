@@ -8,6 +8,17 @@ class RegisterForm(UserCreationForm):
     email      = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=50, required=True)
     last_name  = forms.CharField(max_length=50, required=True)
+    
+    mobile_number = forms.CharField(
+        max_length=15,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control custom-input',
+                'placeholder': 'Mobile Number (Optional)'
+            }
+        )
+    )
 
     class Meta:
         model  = User
@@ -20,10 +31,24 @@ class RegisterForm(UserCreationForm):
 
 
 class LoginForm(AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control custom-input'})
+
+    username = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control custom-input',
+                'placeholder': 'Email address or mobile number'
+            }
+        )
+    )
+
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control custom-input',
+                'placeholder': 'Password'
+            }
+        )
+    )
 
 
 class ProfileUpdateForm(forms.ModelForm):
