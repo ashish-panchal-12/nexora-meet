@@ -1,24 +1,30 @@
+import traceback
+import random
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.conf import settings
+
 from .forms import RegisterForm, LoginForm, ProfileUpdateForm
 from .models import Profile
-from django.contrib.auth.models import User
-import random
-from django.core.mail import send_mail
-from .models import Profile
-from django.conf import settings
 
 
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
+
     if request.method == 'POST':
         form = RegisterForm(request.POST)
+
         if form.is_valid():
             otp = random.randint(100000, 999999)
+
             request.session['otp'] = str(otp)
+
             request.session['user_data'] = {
                 'username': form.cleaned_data['username'],
                 'email': form.cleaned_data['email'],
@@ -27,24 +33,28 @@ def register_view(request):
                 'password': form.cleaned_data['password1'],
                 'mobile_number': form.cleaned_data.get('mobile_number', ''),
             }
+
             try:
                 send_mail(
-                    'Nexora Meet Verification Code',
-                    f'Your OTP is: {otp}',
-                    settings.EMAIL_HOST_USER,
-                    [form.cleaned_data['email']],
-                    fail_silently=False,
-)
+                'Nexora Meet Verification Code',
+                f'Your OTP is: {otp}',
+                settings.EMAIL_HOST_USER,
+                [form.cleaned_data['email']],
+                fail_silently=False,
+            )
 
-                print("EMAIL SENT SUCCESSFULLY")
+                return redirect('verify_otp')
+        
+            except Exception:
+                messages.error(
+                    request,
+                        "Failed to send OTP email. Please try again."
+            )
+            return redirect('register')
 
-            except Exception as e:
-                print("EMAIL ERROR:", str(e))
-            raise
-            
-            return redirect('verify_otp')
     else:
         form = RegisterForm()
+
     return render(
         request,
         'accounts/register.html',
