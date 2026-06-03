@@ -11,7 +11,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
 DEBUG = False
 
-ALLOWED_HOSTS = ["nexora-meet-production.up.railway.app"]
+ALLOWED_HOSTS = [
+    "nexora-meet-production.up.railway.app",
+    ".up.railway.app",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -116,6 +119,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 CSRF_TRUSTED_ORIGINS = [
     "https://*.onrender.com",
     "https://nexora-meet-production.up.railway.app",
+    "https://*.up.railway.app",
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
