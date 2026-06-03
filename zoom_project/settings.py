@@ -115,6 +115,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.onrender.com",
+    "https://nexora-meet-production.up.railway.app",
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
