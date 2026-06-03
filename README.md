@@ -48,7 +48,7 @@ Coming Soon
 - PostgreSQL (Production)
 
 ### Deployment
-- Render
+- Render / Railway
 - GitHub
 
 ---
