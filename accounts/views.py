@@ -105,13 +105,18 @@ def login_view(request):
 
         # Login using Email
         try:
-            user_obj = User.objects.get(email=login_input)
-            user = authenticate(
-                request,
-                username=user_obj.username,
-                password=password
-            )
-        except User.DoesNotExist:
+            user_obj = User.objects.filter(
+                email=login_input
+            ).first()
+
+            if user_obj:
+                user = authenticate(
+                    request,
+                    username=user_obj.username,
+                    password=password
+                )
+
+        except Exception:
             pass
 
         # Login using Mobile Number
