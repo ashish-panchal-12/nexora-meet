@@ -1,5 +1,4 @@
-{% extends 'base.html' %}
-{% block title %}Sign In — Nexora Meet{% endblock %}
+{% extends 'base.html' %} {% block title %}Sign In — Nexora Meet{% endblock %}
 {% block content %}
 <div class="auth-page">
   <div class="auth-bg-orbs">
@@ -36,6 +35,11 @@
           </button>
         </div>
       </div>
+
+      <div style="text-align: right; margin-bottom: 15px">
+        <a href="{% url 'forgot_password' %}"> Forgot Password? </a>
+      </div>
+
       <button type="submit" class="btn-primary-full">
         <i class="bi bi-arrow-right-circle"></i> Sign In
       </button>
@@ -47,16 +51,16 @@
   </div>
 </div>
 <script>
-function togglePwd(btn) {
-  const input = btn.closest('.input-icon-wrap').querySelector('input');
-  const icon  = btn.querySelector('i');
-  if (input.type === 'password') {
-    input.type = 'text';
-    icon.className = 'bi bi-eye-slash';
-  } else {
-    input.type = 'password';
-    icon.className = 'bi bi-eye';
+  function togglePwd(btn) {
+    const input = btn.closest(".input-icon-wrap").querySelector("input");
+    const icon = btn.querySelector("i");
+    if (input.type === "password") {
+      input.type = "text";
+      icon.className = "bi bi-eye-slash";
+    } else {
+      input.type = "password";
+      icon.className = "bi bi-eye";
+    }
   }
-}
 </script>
 {% endblock %}

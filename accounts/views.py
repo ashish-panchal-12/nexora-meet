@@ -12,6 +12,12 @@ from django.conf import settings
 from .forms import RegisterForm, LoginForm, ProfileUpdateForm
 from .models import Profile
 
+# for forgot password
+from django.core.mail import send_mail
+from django.contrib import messages
+from django.contrib.auth.models import User
+import random
+
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -196,3 +202,107 @@ def profile_view(request):
         'profile': profile,
         'hosted_count': hosted_count,
     })
+    
+    
+    
+def forgot_password_view(request):
+
+    if request.method == 'POST':
+
+        email = request.POST.get('email')
+
+        try:
+            user = User.objects.get(email=email)
+
+            otp = random.randint(100000, 999999)
+
+            request.session['reset_otp'] = str(otp)
+            request.session['reset_email'] = email
+
+            send_mail(
+                'Password Reset OTP',
+                f'Your OTP is: {otp}',
+                None,
+                [email],
+                fail_silently=False,
+            )
+
+            return redirect('verify_reset_otp')
+
+        except User.DoesNotExist:
+
+            messages.error(
+                request,
+                'No account found with this email.'
+            )
+
+    return render(
+        request,
+        'accounts/forgot_password.html'
+    )
+    
+    
+def verify_reset_otp(request):
+
+    if request.method == 'POST':
+
+        entered_otp = request.POST.get('otp')
+
+        saved_otp = request.session.get('reset_otp')
+
+        if entered_otp == saved_otp:
+            request.session['reset_verified'] = True
+            return redirect('reset_password')
+
+        messages.error(
+            request,
+            'Invalid OTP'
+        )
+
+    return render(
+        request,
+        'accounts/verify_reset_otp.html'
+    )
+    
+    
+def reset_password_view(request):
+    if not request.session.get('reset_verified'):
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if password1 != password2:
+
+            messages.error(
+                request,
+                'Passwords do not match'
+            )
+
+            return redirect('reset_password')
+
+        email = request.session.get('reset_email')
+
+        user = User.objects.get(email=email)
+
+        user.set_password(password1)
+
+        user.save()
+
+        request.session.pop('reset_otp', None)
+        request.session.pop('reset_email', None)
+        request.session.pop('reset_verified', None)
+
+        messages.success(
+            request,
+            'Password changed successfully.'
+        )
+
+        return redirect('login')
+
+    return render(
+        request,
+        'accounts/reset_password.html'
+    )
