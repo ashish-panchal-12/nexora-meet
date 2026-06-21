@@ -25,7 +25,41 @@ import requests
 from django.conf import settings
 
 
+# for OTP generation and email sending using Brevo API
+from django.utils import timezone
+from datetime import timedelta
+
+
 def send_brevo_email(to_email, subject, otp):
+    html_content = f"""
+        <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
+
+            <h2 style="color:#6C63FF;">Nexora Meet</h2>
+
+            <p>Hello,</p>
+
+            <p>Use the verification code below to continue:</p>
+
+            <div style="background:#f4f4ff; padding:20px; text-align:center; border-radius:10px; margin:20px 0;">
+                <span style="font-size:32px; font-weight:bold; letter-spacing:5px; color:#6C63FF;">
+                    {otp}</span>
+            </div>
+
+            <p>This OTP is valid for 10 minutes.</p>
+
+            <p>
+                If you didn't request this code,
+                you can safely ignore this email.
+            </p>
+
+            <hr>
+
+            <p style="color:gray;font-size:12px;"> 
+                © Nexora Meet 2026, ALL RIGHTS RESERVERD.
+            </p>
+
+        </div>"""
+        
     response = requests.post(
         "https://api.brevo.com/v3/smtp/email",
         headers={
@@ -37,7 +71,7 @@ def send_brevo_email(to_email, subject, otp):
             "sender": {"name": "Nexora Meet", "email": "panchalab12@gmail.com"},
             "to": [{"email": to_email}],
             "subject": subject,
-            "htmlContent": f"<h2>Your OTP is: {otp}</h2>",
+            "htmlContent": html_content,
         },
         timeout=20,
     )
@@ -46,6 +80,68 @@ def send_brevo_email(to_email, subject, otp):
     print("Brevo Response:", response.text)
 
     return response
+
+
+def send_welcome_email(to_email, username):
+
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
+
+        <h1 style="color:#6C63FF;">
+            Welcome to Nexora Meet 🎉
+        </h1>
+
+        <p>Hello <b>{username}</b>,</p>
+
+        <p>
+            Your account has been successfully created.
+        </p>
+
+        <p>
+            You can now:
+        </p>
+
+        <ul>
+            <li>Create meetings</li>
+            <li>Join meetings</li>
+            <li>Chat with participants</li>
+            <li>Manage your profile</li>
+        </ul>
+
+        <p>
+            Thank you for choosing Nexora Meet.
+        </p>
+
+        <hr>
+
+        <p style="color:gray;font-size:12px;">
+            © Nexora Meet | Secure Video Meetings
+        </p>
+
+    </div>
+    """
+
+    response = requests.post(
+        "https://api.brevo.com/v3/smtp/email",
+        headers={
+            "accept": "application/json",
+            "api-key": settings.BREVO_API_KEY,
+            "content-type": "application/json",
+        },
+        json={
+            "sender": {
+                "name": "Nexora Meet",
+                "email": "panchalab12@gmail.com"
+            },
+            "to": [{"email": to_email}],
+            "subject": "Welcome to Nexora Meet 🎉",
+            "htmlContent": html_content,
+        },
+        timeout=20,
+    )
+
+    return response
+
 
 
 def register_view(request):
@@ -59,6 +155,7 @@ def register_view(request):
             otp = random.randint(100000, 999999)
 
             request.session["otp"] = str(otp)
+            request.session["otp_created_at"] = timezone.now().isoformat()
 
             request.session["user_data"] = {
                 "username": form.cleaned_data["username"],
@@ -72,10 +169,12 @@ def register_view(request):
             try:
                 import requests
 
-                response = send_brevo_email(form.cleaned_data["email"],"Nexora Meet Verification Code",otp)
+                response = send_brevo_email(
+                    form.cleaned_data["email"], "Nexora Meet Verification Code", otp
+                )
 
                 if response.status_code not in [200, 201]:
-                    messages.error(requests.request, f"Email Error: {response.text}")
+                    messages.error(request, f"Email Error: {response.text}")
                     return redirect("register")
 
                 return redirect("verify_otp")
@@ -95,6 +194,18 @@ def verify_otp(request):
     if request.method == "POST":
         entered_otp = request.POST.get("otp")
         saved_otp = request.session.get("otp")
+        otp_created_at = request.session.get("otp_created_at")
+        
+        if otp_created_at:
+            otp_time = timezone.datetime.fromisoformat(otp_created_at)
+
+            if timezone.now() - otp_time > timedelta(minutes=10):
+                request.session.pop("otp", None)
+                request.session.pop("otp_created_at", None)
+
+                messages.error(request, "OTP expired. Please register again.")
+                return redirect("register")
+        
         if entered_otp == saved_otp:
             data = request.session.get("user_data")
             user = User.objects.create_user(
@@ -105,13 +216,53 @@ def verify_otp(request):
                 last_name=data["last_name"],
             )
             Profile.objects.create(user=user, mobile_number=data.get("mobile_number"))
+            send_welcome_email(user.email,user.first_name or user.username)
             login(request, user)
-            del request.session["otp"]
-            del request.session["user_data"]
+            request.session.pop("otp", None)
+            request.session.pop("otp_created_at", None)
+            request.session.pop("user_data", None)
             return redirect("dashboard")
         else:
             messages.error(request, "Invalid OTP")
     return render(request, "accounts/verify_otp.html")
+
+
+
+def resend_otp(request):
+
+    user_data = request.session.get("user_data")
+
+    if not user_data:
+        messages.error(
+            request,
+            "Session expired. Please register again."
+        )
+        return redirect("register")
+
+    otp = random.randint(100000, 999999)
+
+    request.session["otp"] = str(otp)
+    request.session["otp_created_at"] = timezone.now().isoformat()
+
+    response = send_brevo_email(
+        user_data["email"],
+        "Nexora Meet Verification Code",
+        otp
+    )
+
+    if response.status_code not in [200, 201]:
+        messages.error(
+            request,
+            "Failed to resend OTP."
+        )
+        return redirect("verify_otp")
+
+    messages.success(
+        request,
+        "A new OTP has been sent."
+    )
+
+    return redirect("verify_otp")
 
 
 def login_view(request):
@@ -219,11 +370,12 @@ def forgot_password_view(request):
             otp = random.randint(100000, 999999)
 
             request.session["reset_otp"] = str(otp)
+            request.session["reset_otp_created_at"] = timezone.now().isoformat()
             request.session["reset_email"] = email
 
-            response = send_brevo_email(email,"Password Reset OTP",otp)
+            response = send_brevo_email(email, "Password Reset OTP", otp)
             if response.status_code not in [200, 201]:
-                messages.error(request,f"Email Error: {response.text}")
+                messages.error(request, f"Email Error: {response.text}")
                 return redirect("forgot_password")
 
             return redirect("verify_reset_otp")
@@ -242,6 +394,16 @@ def verify_reset_otp(request):
         entered_otp = request.POST.get("otp")
 
         saved_otp = request.session.get("reset_otp")
+        otp_created_at = request.session.get("reset_otp_created_at")
+        
+        if otp_created_at:
+            otp_time = timezone.datetime.fromisoformat(otp_created_at)
+
+            if timezone.now() - otp_time > timedelta(minutes=10):
+                request.session.pop("reset_otp", None)
+                request.session.pop("reset_otp_created_at", None)
+                messages.error(request, "OTP expired.")
+                return redirect("forgot_password")
 
         if entered_otp == saved_otp:
             request.session["reset_verified"] = True

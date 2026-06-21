@@ -14,7 +14,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "nexora-meet-production.up.railway.app",
+    "nexorameet.onrender.com",
 ]
 
 INSTALLED_APPS = [
@@ -120,7 +120,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",
-    "https://nexora-meet-production.up.railway.app",
+    "https://nexorameet.onrender.com",
 ]
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
