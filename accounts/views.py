@@ -42,6 +42,7 @@ def register_view(request):
             }
 
             try:
+                print("RESEND_API_KEY =", settings.RESEND_API_KEY)
                 resend.api_key = settings.RESEND_API_KEY
 
                 resend.Emails.send({
