@@ -29,21 +29,6 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 
-from django.http import HttpResponse
-from django.contrib.auth.models import User
-
-
-def create_admin(request):
-    if not User.objects.filter(username="NEXORAMEET_ADMIN").exists():
-        User.objects.create_superuser(
-            username="NEXORAMEET_ADMIN",
-            email="ashishp12b@gmail.com",
-            password="Anita@12"
-        )
-        return HttpResponse("Admin created")
-
-    return HttpResponse("Admin already exists")
-
 
 def send_brevo_email(to_email, subject, otp):
     html_content = f"""
