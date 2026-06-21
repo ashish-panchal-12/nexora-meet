@@ -123,18 +123,14 @@ CSRF_TRUSTED_ORIGINS = [
     "https://nexora-meet-production.up.railway.app",
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = "smtp-relay.brevo.com"
 EMAIL_PORT = 587
 
 EMAIL_USE_TLS = True
-# EMAIL_TIMEOUT = 10
 
-import os
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.getenv("BREVO_USER")
+EMAIL_HOST_PASSWORD = os.getenv("BREVO_PASSWORD")
 
-RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER 
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

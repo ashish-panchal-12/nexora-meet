@@ -1,6 +1,5 @@
 import traceback
 import random
-import resend
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -42,15 +41,13 @@ def register_view(request):
             }
 
             try:
-                print("RESEND_API_KEY =", settings.RESEND_API_KEY)
-                resend.api_key = settings.RESEND_API_KEY
-
-                resend.Emails.send({
-                    "from": "onboarding@resend.dev",
-                    "to": [form.cleaned_data['email']],
-                    "subject": "Nexora Meet Verification Code",
-                    "html": f"<h2>Your OTP is: {otp}</h2>"
-                })
+                send_mail(
+                    "Nexora Meet Verification Code",
+                    f"Your OTP is: {otp}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [form.cleaned_data["email"]],
+                    fail_silently=False,
+                )
 
                 return redirect("verify_otp")
 
@@ -198,7 +195,7 @@ def forgot_password_view(request):
             send_mail(
                 "Password Reset OTP",
                 f"Your OTP is: {otp}",
-                None,
+                settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
             )
