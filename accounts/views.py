@@ -1,5 +1,6 @@
 import traceback
 import random
+from urllib import request, response
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -8,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
+import requests
 
 from .forms import RegisterForm, LoginForm, ProfileUpdateForm
 from .models import Profile
@@ -17,6 +19,33 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth.models import User
 import random
+
+# for brevo api key
+import requests
+from django.conf import settings
+
+
+def send_brevo_email(to_email, subject, otp):
+    response = requests.post(
+        "https://api.brevo.com/v3/smtp/email",
+        headers={
+            "accept": "application/json",
+            "api-key": settings.BREVO_API_KEY,
+            "content-type": "application/json",
+        },
+        json={
+            "sender": {"name": "Nexora Meet", "email": "panchalab12@gmail.com"},
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "htmlContent": f"<h2>Your OTP is: {otp}</h2>",
+        },
+        timeout=20,
+    )
+
+    print("Brevo Status:", response.status_code)
+    print("Brevo Response:", response.text)
+
+    return response
 
 
 def register_view(request):
@@ -41,18 +70,13 @@ def register_view(request):
             }
 
             try:
-                from django.conf import settings
+                import requests
 
-                print("EMAIL_HOST =", settings.EMAIL_HOST)
-                print("EMAIL_HOST_USER =", settings.EMAIL_HOST_USER)
-                print("EMAIL_HOST_PASSWORD =", settings.EMAIL_HOST_PASSWORD)
-                send_mail(
-                    "Nexora Meet Verification Code",
-                    f"Your OTP is: {otp}",
-                    settings.DEFAULT_FROM_EMAIL,
-                    [form.cleaned_data["email"]],
-                    fail_silently=False,
-                )
+                response = send_brevo_email(form.cleaned_data["email"],"Nexora Meet Verification Code",otp)
+
+                if response.status_code not in [200, 201]:
+                    messages.error(requests.request, f"Email Error: {response.text}")
+                    return redirect("register")
 
                 return redirect("verify_otp")
 
@@ -197,13 +221,10 @@ def forgot_password_view(request):
             request.session["reset_otp"] = str(otp)
             request.session["reset_email"] = email
 
-            send_mail(
-                "Password Reset OTP",
-                f"Your OTP is: {otp}",
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
+            response = send_brevo_email(email,"Password Reset OTP",otp)
+            if response.status_code not in [200, 201]:
+                messages.error(request,f"Email Error: {response.text}")
+                return redirect("forgot_password")
 
             return redirect("verify_reset_otp")
 
