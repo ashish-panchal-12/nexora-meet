@@ -41,6 +41,11 @@ def register_view(request):
             }
 
             try:
+                from django.conf import settings
+
+                print("EMAIL_HOST =", settings.EMAIL_HOST)
+                print("EMAIL_HOST_USER =", settings.EMAIL_HOST_USER)
+                print("EMAIL_HOST_PASSWORD =", settings.EMAIL_HOST_PASSWORD)
                 send_mail(
                     "Nexora Meet Verification Code",
                     f"Your OTP is: {otp}",
