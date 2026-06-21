@@ -53,8 +53,9 @@ def register_view(request):
 
                 return redirect("verify_otp")
 
-            except Exception:
-                messages.error(request, "Failed to send OTP email. Please try again.")
+            except Exception as e:
+                print("EMAIL ERROR:", e)
+                messages.error(request, f"Email Error: {e}")
             return redirect("register")
 
     else:
