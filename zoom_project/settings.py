@@ -124,13 +124,3 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
-
-
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.filter(username="admin").exists():
-    User.objects.create_superuser(
-        username="NEXORAMEET_ADMIN",
-        email="ashishp12b@gmail.com",
-        password="Anita@12"
-    )
