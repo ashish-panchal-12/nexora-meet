@@ -6,7 +6,7 @@ A modern real-time video conferencing platform built with Django, WebRTC technol
 
 ## 🌐 Live Demo
 
-🔗 https://nexorameet.onrender.com
+comming soon..
 
 ---
 
